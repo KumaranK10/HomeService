@@ -5,22 +5,32 @@ service_names = []
 appointments_list = []
 
 
-class Service:   #Encapsulation
-    def __init__(self, id, name, description, cost):
+class Service: #Encapsulation
+    def __init__(self, id, name, description, cost, location=None, offer=None):
         self.service_id = id
         self.service_name = name
         self.description = description
         self.cost = cost
+        self.location = location
+        self.offer = offer
 
 
-class Appointment:   #Encapsulation
-    def __init__(self, appointment_id, user_id, booked_at, service_details):
+class Offer:
+    def __init__(self, offer_id, discount):
+        self.offer_id = offer_id
+        self.discount = discount
+
+
+class Appointment:
+    def __init__(self, appointment_id, user_id, booked_at, service_details, location):
         self.appointment_id = appointment_id
         self.user_id = user_id
         self.booked_at = booked_at
         self.service_details = service_details
+        self.location = location
 
-class HomeServiceApp: (#Encapsulation)
+
+class HomeServiceApp:
     appointment_count = 0
 
     def __init__(self, id: int, name: str, email: str, password: str, role: str):
@@ -34,7 +44,7 @@ class HomeServiceApp: (#Encapsulation)
         users.append(self)
         return users
 
-    def validateLogin(self, email, password):
+    def validateLogin(self, email, password):  #Encapsulation
         for user in users:
             if user.email == email and user.password == password:
                 return user
@@ -48,15 +58,15 @@ class HomeServiceApp: (#Encapsulation)
 
 
 class ServiceListings(HomeServiceApp):
-    def __init__(self, id, name, email, password, role):    #Inheritence( from HomeServiceApp)
-        super().__init__(id, name, email, password, role) 
+    def __init__(self, id, name, email, password, role):
+        super().__init__(id, name, email, password, role)     #Inheritence( from HomeServiceApp)
         self.selected_services = []
 
     def booking_for_customer(self):
         stay_in_customer_menu = True
-        service1 = Service(1, 'Electrical', 'Electrical services description', 50)
-        service2 = Service(2, 'Plumbing', 'Plumbing services description', 60)
-        service3 = Service(3, 'Cleaning', 'Cleaning services description', 40)
+        service1 = Service(1, 'Electrical', 'Electrical services description', 50, 'Location A', offer=1)
+        service2 = Service(2, 'Plumbing', 'Plumbing services description', 60, 'Location B')
+        service3 = Service(3, 'Cleaning', 'Cleaning services description', 40, 'Location C', offer=2)
         service_names.append(service1)
         service_names.append(service2)
         service_names.append(service3)
@@ -70,19 +80,18 @@ class ServiceListings(HomeServiceApp):
             print("5. Logout")
             choice = int(input("Enter your Choice: "))
 
-            if choice == 1:   #Composition: It uses Service class to represent available services
+            if choice == 1:    #Composition: It uses Service class to represent available services
                 for service in service_names:
-                    print(service.service_id, service.service_name, service.description, service.cost)
+                    print(service.service_id, service.service_name, service.description, service.cost, service.location)
                     print('---------------------------------------------')
 
             if choice == 2:
                 while True:
                     print("Services List:")
                     for service in service_names:
-                        print(service.service_id, service.service_name, service.description, service.cost)
+                        print(service.service_id, service.service_name, service.description, service.cost, service.location)
 
-                    service_id = int(
-                        input("Enter the ID of the service to add to appointments (or 0 to stop adding): "))
+                    service_id = int(input("Enter the ID of the service to add to appointments (or 0 to stop adding): "))
                     if service_id == 0:
                         break
                     selected_service = None
@@ -94,20 +103,26 @@ class ServiceListings(HomeServiceApp):
                     if selected_service is None:
                         print("Invalid service ID. Please try again.")
                     else:
-                        appointment_data = Appointment(self.appointment_count, self.user_id, datetime.datetime.now(),
-                                                       selected_service)
+                        offer_id = selected_service.offer if selected_service.offer else 0
+                        offer_discount = 0
+                        for offer in offers_list:  # <--- This line will cause an error
+                            if offer.offer_id == offer_id:
+                                offer_discount = offer.discount
+                                break
+                        selected_service.cost -= offer_discount
+                        location = selected_service.location
+                        appointment_data = Appointment(self.appointment_count, self.user_id, datetime.datetime.now(), selected_service, location)
                         appointments_list.append(appointment_data)
                         self.appointment_count += 1
                         print("Appointment booked successfully.")
                     break
 
-            elif choice == 3:    #Composition and Dict to print the respective keys and values pair.
+            elif choice == 3:   #Composition and Dict to print the respective keys and values pair.
                 for appointment in appointments_list:
                     print(f"Appointment ID: {appointment.appointment_id}")
                     print(f"User ID: {appointment.user_id}")
                     print(f"Booked At: {appointment.booked_at}")
-                    print(
-                        f"Service Details: {appointment.service_details.service_name}, {appointment.service_details.cost}")
+                    print(f"Service Details: {appointment.service_details.service_name}, {appointment.service_details.cost}, {appointment.location}")
                     print('---------------------------------------------')
 
             elif choice == 4:
@@ -116,7 +131,7 @@ class ServiceListings(HomeServiceApp):
                 else:
                     print("Appointment History:")
                     for appointment in appointments_list:
-                        print("Appointment ID:", appointment.appointment_id)     #Dictionary
+                        print("Appointment ID:", appointment.appointment_id)
                         print("User ID:", appointment.user_id)
                         print("Booked At:", appointment.booked_at)
                         print('---------------------------------------------')
@@ -144,9 +159,9 @@ class ServiceListings(HomeServiceApp):
                 print("Invalid Entry")
 
 
-class AdminFlow(HomeServiceApp):    #Inheritence ffrom HomeServiceApp
+class AdminFlow(HomeServiceApp):
     def _init_(self, id, name, email, password, role):
-        super()._init_(id, name, email, password, role)
+        super()._init_(id, name, email, password, role)   #Inheritence ffrom HomeServiceApp
 
     def Welcome(self):
         print('Hi Welcome Admin')
@@ -158,6 +173,9 @@ if __name__ == "__main__":
     app.hardCodedData()
     app = HomeServiceApp(2, "Lokesh", "Lokesh@gmail.com", "lokesh123", "Admin")
     app.hardCodedData()
+
+    # Hardcoded offers
+    offers_list = [Offer(1, 5), Offer(2, 10)]
 
     login_user = app.validateLogin("kumar@gmail.com", "kumar123")
 
