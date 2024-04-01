@@ -1,0 +1,174 @@
+import datetime
+
+users = []
+service_names = []
+appointments_list = []
+
+
+class Service:
+    def __init__(self, id, name, description, cost):
+        self.service_id = id
+        self.service_name = name
+        self.description = description
+        self.cost = cost
+
+
+class Appointment:
+    def __init__(self, appointment_id, user_id, booked_at, service_details):
+        self.appointment_id = appointment_id
+        self.user_id = user_id
+        self.booked_at = booked_at
+        self.service_details = service_details
+
+class HomeServiceApp:
+    appointment_count = 0
+
+    def __init__(self, id: int, name: str, email: str, password: str, role: str):
+        self.user_id = id
+        self.name = name
+        self.email = email
+        self.password = password
+        self.role = role
+
+    def hardCodedData(self):
+        users.append(self)
+        return users
+
+    def validateLogin(self, email, password):
+        for user in users:
+            if user.email == email and user.password == password:
+                return user
+        return None
+
+    def getUserName(self) -> str:
+        return self.name
+
+    def Welcome(self):
+        print('Hi Welcome Customer', self.name)
+
+
+class ServiceListings(HomeServiceApp):
+    def __init__(self, id, name, email, password, role):
+        super().__init__(id, name, email, password, role)
+        self.selected_services = []
+
+    def booking_for_customer(self):
+        stay_in_customer_menu = True
+        service1 = Service(1, 'Electrical', 'Electrical services description', 50)
+        service2 = Service(2, 'Plumbing', 'Plumbing services description', 60)
+        service3 = Service(3, 'Cleaning', 'Cleaning services description', 40)
+        service_names.append(service1)
+        service_names.append(service2)
+        service_names.append(service3)
+        while True:
+            print("\n**")
+            print("Customer Menu")
+            print("1. List Of Services")
+            print("2. Select Services")
+            print("3. Appointment History")
+            print("4. Cancel Appointment")
+            print("5. Logout")
+            choice = int(input("Enter your Choice: "))
+
+            if choice == 1:
+                for service in service_names:
+                    print(service.service_id, service.service_name, service.description, service.cost)
+                    print('---------------------------------------------')
+
+            if choice == 2:
+                while True:
+                    print("Services List:")
+                    for service in service_names:
+                        print(service.service_id, service.service_name, service.description, service.cost)
+
+                    service_id = int(
+                        input("Enter the ID of the service to add to appointments (or 0 to stop adding): "))
+                    if service_id == 0:
+                        break
+                    selected_service = None
+                    for service in service_names:
+                        if service.service_id == service_id:
+                            selected_service = service
+                            break
+
+                    if selected_service is None:
+                        print("Invalid service ID. Please try again.")
+                    else:
+                        appointment_data = Appointment(self.appointment_count, self.user_id, datetime.datetime.now(),
+                                                       selected_service)
+                        appointments_list.append(appointment_data)
+                        self.appointment_count += 1
+                        print("Appointment booked successfully.")
+                    break
+
+            elif choice == 3:
+                for appointment in appointments_list:
+                    print(f"Appointment ID: {appointment.appointment_id}")
+                    print(f"User ID: {appointment.user_id}")
+                    print(f"Booked At: {appointment.booked_at}")
+                    print(
+                        f"Service Details: {appointment.service_details.service_name}, {appointment.service_details.cost}")
+                    print('---------------------------------------------')
+
+            elif choice == 4:
+                if len(appointments_list) == 0:
+                    print("No appointment history available.")
+                else:
+                    print("Appointment History:")
+                    for appointment in appointments_list:
+                        print("Appointment ID:", appointment.appointment_id)
+                        print("User ID:", appointment.user_id)
+                        print("Booked At:", appointment.booked_at)
+                        print('---------------------------------------------')
+
+                    cancel_choice = input("Enter the Appointment ID to cancel the appointment (or 'n' to cancel): ")
+                    if cancel_choice == 'n':
+                        print("Cancellation canceled.")
+                    else:
+                        cancel_choice = int(cancel_choice)
+                        cancelled = False
+                        for appointment in appointments_list:
+                            if appointment.appointment_id == cancel_choice:
+                                appointments_list.remove(appointment)
+                                cancelled = True
+                                break
+                        if cancelled:
+                            print("Appointment canceled successfully.")
+                        else:
+                            print("Invalid Appointment ID. Please try again.")
+
+            elif choice == 5:
+                print("Logout Successfully")
+                break
+            else:
+                print("Invalid Entry")
+
+
+class AdminFlow(HomeServiceApp):
+    def _init_(self, id, name, email, password, role):
+        super()._init_(id, name, email, password, role)
+
+    def Welcome(self):
+        print('Hi Welcome Admin')
+        print(self.getUserName())
+
+
+if __name__ == "__main__":
+    app = HomeServiceApp(1, "Kumaran", "kumar@gmail.com", "kumar123", "customer")
+    app.hardCodedData()
+    app = HomeServiceApp(2, "Lokesh", "Lokesh@gmail.com", "lokesh123", "Admin")
+    app.hardCodedData()
+
+    login_user = app.validateLogin("kumar@gmail.com", "kumar123")
+
+    if login_user:
+        print('Login Success')
+        if login_user.role == "Admin":
+            admin = AdminFlow(login_user.userID, login_user.name, login_user.email, login_user.password,
+                              login_user.role)
+            admin.Welcome()
+        elif login_user.role == "customer":
+            app.Welcome()
+            book = ServiceListings(login_user.user_id, login_user.name, login_user.email, login_user.password,
+                                   login_user.role)
+            book.booking_for_customer()
