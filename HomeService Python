@@ -5,7 +5,7 @@ service_names = []
 appointments_list = []
 
 
-class Service:
+class Service:   #Encapsulation
     def __init__(self, id, name, description, cost):
         self.service_id = id
         self.service_name = name
@@ -13,14 +13,14 @@ class Service:
         self.cost = cost
 
 
-class Appointment:
+class Appointment:   #Encapsulation
     def __init__(self, appointment_id, user_id, booked_at, service_details):
         self.appointment_id = appointment_id
         self.user_id = user_id
         self.booked_at = booked_at
         self.service_details = service_details
 
-class HomeServiceApp:
+class HomeServiceApp: (#Encapsulation)
     appointment_count = 0
 
     def __init__(self, id: int, name: str, email: str, password: str, role: str):
@@ -48,8 +48,8 @@ class HomeServiceApp:
 
 
 class ServiceListings(HomeServiceApp):
-    def __init__(self, id, name, email, password, role):
-        super().__init__(id, name, email, password, role)
+    def __init__(self, id, name, email, password, role):    #Inheritence( from HomeServiceApp)
+        super().__init__(id, name, email, password, role) 
         self.selected_services = []
 
     def booking_for_customer(self):
@@ -70,7 +70,7 @@ class ServiceListings(HomeServiceApp):
             print("5. Logout")
             choice = int(input("Enter your Choice: "))
 
-            if choice == 1:
+            if choice == 1:   #Composition: It uses Service class to represent available services
                 for service in service_names:
                     print(service.service_id, service.service_name, service.description, service.cost)
                     print('---------------------------------------------')
@@ -101,7 +101,7 @@ class ServiceListings(HomeServiceApp):
                         print("Appointment booked successfully.")
                     break
 
-            elif choice == 3:
+            elif choice == 3:    #Composition and Dict to print the respective keys and values pair.
                 for appointment in appointments_list:
                     print(f"Appointment ID: {appointment.appointment_id}")
                     print(f"User ID: {appointment.user_id}")
@@ -116,7 +116,7 @@ class ServiceListings(HomeServiceApp):
                 else:
                     print("Appointment History:")
                     for appointment in appointments_list:
-                        print("Appointment ID:", appointment.appointment_id)
+                        print("Appointment ID:", appointment.appointment_id)     #Dictionary
                         print("User ID:", appointment.user_id)
                         print("Booked At:", appointment.booked_at)
                         print('---------------------------------------------')
@@ -144,7 +144,7 @@ class ServiceListings(HomeServiceApp):
                 print("Invalid Entry")
 
 
-class AdminFlow(HomeServiceApp):
+class AdminFlow(HomeServiceApp):    #Inheritence ffrom HomeServiceApp
     def _init_(self, id, name, email, password, role):
         super()._init_(id, name, email, password, role)
 
